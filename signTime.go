@@ -2,12 +2,22 @@ package main
 
 import (
 	"encoding/json"
-	//	"flag"
 	"fmt"
 	"github.com/nlopes/slack"
 	"net/http"
+	"os"
+	"strings"
 )
 
+func ParseInput(s *slack.SlashCommand) []string {
+	split := strings.Split(s.Text, ";")
+	for _, v := range split {
+		fmt.Println(v)
+	}
+	return split
+}
+
+// body of slash handler built from nlopes/slack
 func slashHandler(w http.ResponseWriter, r *http.Request) {
 	verificationToken := "WSSPF87NgO5USa49IfYTVlnn"
 	s, err := slack.SlashCommandParse(r)
@@ -24,8 +34,24 @@ func slashHandler(w http.ResponseWriter, r *http.Request) {
 	switch s.Command {
 	case "/signtime":
 		fmt.Println(s.Text)
-		params := &slack.Msg{Text: s.Text}
+		ParseInput(&s)
+		fmt.Println(s.Text)
+		params := &slack.Msg{Text: "Signup for a meeting time!"}
+		attachments := slack.Attachment{
+			Text:     s.Text,
+			Fallback: "Woah dude, that don't work",
+			Actions: []slack.AttachmentAction{
+				slack.AttachmentAction{
+					Name:  "Signup!",
+					Text:  "Signup!",
+					Style: "primary",
+					Type:  "button",
+				},
+			},
+		}
+		params.Attachments = []slack.Attachment{attachments}
 		b, err := json.Marshal(params)
+		fmt.Fprintf(os.Stdout, "%s", b)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
