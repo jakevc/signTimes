@@ -10,23 +10,30 @@ import (
 )
 
 // Build a date signup attachments from parsed input
-func buildAttachments(s *slack.SlashCommand) slack.Attachment {
+func buildAttachments(s *slack.SlashCommand) []slack.Attachment {
 
 	// parse dated between ;
 	split := strings.Split(s.Text, ";")
 
-	attachments := slack.Attachment{
-		Text:     split[1],
-		Fallback: "Woah dude, that don't work",
-		Actions: []slack.AttachmentAction{
-			slack.AttachmentAction{
-				Name:  "Signup!",
-				Text:  "Signup!",
-				Style: "primary",
-				Type:  "button",
+	// initialise attachment
+	attachments := []slack.Attachment{}
+
+	for idx, v := range split {
+		fmt.Println("idx:", idx, "value", v)
+		attachments = append(attachments, slack.Attachment{
+			Text:     v,
+			Fallback: "Woah dude, that don't work",
+			Actions: []slack.AttachmentAction{
+				slack.AttachmentAction{
+					Name:  "Signup!",
+					Text:  "Signup!",
+					Style: "primary",
+					Type:  "button",
+				},
 			},
-		},
+		})
 	}
+	fmt.Println(attachments)
 	return attachments
 }
 
@@ -48,7 +55,7 @@ func slashHandler(w http.ResponseWriter, r *http.Request) {
 	case "/signtime":
 
 		// print user input
-		fmt.Println(s.Text)
+		//fmt.Println(s.Text)
 
 		// Initialize the msg
 		params := &slack.Msg{Text: "Signup for a meeting time!"}
@@ -56,9 +63,8 @@ func slashHandler(w http.ResponseWriter, r *http.Request) {
 		// Build attachments
 		attachments := buildAttachments(&s)
 
-		fmt.Println(attachments)
 		// Add attachments
-		params.Attachments = []slack.Attachment{attachments}
+		params.Attachments = attachments
 
 		b, err := json.Marshal(params)
 		fmt.Fprintf(os.Stdout, "%s", b)

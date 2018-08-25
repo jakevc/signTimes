@@ -2,9 +2,7 @@
 
 SignTimes is a slack app that functions as a slash commad.
 
-`/signtimes add [date, time]`
-
-The input will be a list of datetimes that are created for users to respond to.
+`/signtimes date@time; date@time; date@time` - Populated a list of three times to signup for
 
 TODO
- 	- implement parse datetime
+ 	- implement user response
